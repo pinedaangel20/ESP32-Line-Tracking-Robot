@@ -37,9 +37,9 @@ void setup() {
 }
 
 void loop() {
-  int leftSensor   = !digitalRead(leftAvoidPin);
-  int centerSensor = !digitalRead(linePin);
-  int rightSensor  = !digitalRead(rightAvoidPin);
+  int leftSensor   = digitalRead(leftAvoidPin);
+  int centerSensor = digitalRead(linePin);
+  int rightSensor  = digitalRead(rightAvoidPin);
 
   int state = (leftSensor << 2) | (centerSensor << 1) | rightSensor;
 
