@@ -1,15 +1,17 @@
 #include <Arduino.h>
 
 // ==== Motores ====
-#define motor1A 13 
+// Motor Izquierdo -> IO13 (A), IO14 (B)
+// Motor Derecho   -> IO26 (A), IO25 (B)
+#define motor1A 26 
+#define motor1B 25
 #define motor2A 14
-#define motor1B 26
-#define motor2B 25
+#define motor2B 13
 
 // ==== Sensores ====
 const int rightAvoidPin = 18; 
-const int leftAvoidPin = 19; 
-const int linePin = 33; // central
+const int leftAvoidPin  = 19; 
+const int linePin       = 33; // central
 
 // ==== PWM ====
 const int freq = 500; 
@@ -22,10 +24,10 @@ TurnDirection lastTurn = NONE;
 void setup() {
   Serial.begin(115200);
 
-  // Configuración PWM
+  // Configuración PWM simplificada (Sunfounder style)
   ledcAttach(motor1A, freq, resolution);
-  ledcAttach(motor2A, freq, resolution);
   ledcAttach(motor1B, freq, resolution);
+  ledcAttach(motor2A, freq, resolution);
   ledcAttach(motor2B, freq, resolution);
 
   // Sensores
@@ -35,92 +37,101 @@ void setup() {
 }
 
 void loop() {
-  // Sensores típicos: activo en LOW → invertimos
   int leftSensor   = !digitalRead(leftAvoidPin);
   int centerSensor = !digitalRead(linePin);
   int rightSensor  = !digitalRead(rightAvoidPin);
 
-  // Línea delgada ⇒ normalmente solo 1 sensor activo
   int state = (leftSensor << 2) | (centerSensor << 1) | rightSensor;
 
-  //        L C R
+  Serial.print("L=");
+  Serial.print(leftSensor);
+  Serial.print(" C=");
+  Serial.print(centerSensor);
+  Serial.print(" R=");
+  Serial.print(rightSensor);
+  Serial.print(" | Acción: ");
+
   switch (state) {
-    case 0b010: // 0 1 0  → solo CENTRO: avanzar recto rápido
-      forward(255);
+    case 0b010: // solo CENTRO
+      forward(180);
+      Serial.println("Forward");
       lastTurn = NONE;
       break;
 
-    case 0b100: // 1 0 0  → solo IZQUIERDA: corrige a la izquierda (suave)
+    case 0b100: // solo IZQUIERDA
+    case 0b110: // centro+izq
       slightLeft();
+      Serial.println("Slight Left");
       lastTurn = LEFT;
       break;
 
-    case 0b001: // 0 0 1  → solo DERECHA: corrige a la derecha (suave)
+    case 0b001: // solo DERECHA
+    case 0b011: // centro+der
       slightRight();
+      Serial.println("Slight Right");
       lastTurn = RIGHT;
       break;
 
-    case 0b110: // 1 1 0  → centro+izq (raro con línea delgada): sigue corrigiendo izq
-      slightLeft();
-      lastTurn = LEFT;
-      break;
-
-    case 0b011: // 0 1 1  → centro+der: sigue corrigiendo der
-      slightRight();
-      lastTurn = RIGHT;
-      break;
-
-    case 0b111: // 1 1 1  → los tres sobre negro (línea ancha/intersección): avanza
-      forward(255);
-      lastTurn = NONE;
-      break;
-
-    case 0b000: // 0 0 0  → ninguno ve línea: BÚSQUEDA según último giro
+    case 0b000: // ninguno ve línea
     default:
       if (lastTurn == LEFT) {
-        turnLeft();   // pivota hacia donde la vio por última vez
+        turnLeft();
+        Serial.println("Lost line → Turn Left (search)");
       } else {
         turnRight();
+        Serial.println("Lost line → Turn Right (search)");
         lastTurn = RIGHT;
       }
       break;
   }
 
-  delay(5); // respuesta rápida
+  delay(50);
 }
 
 // ==== Funciones de movimiento ====
-void forward(int speed) {
-  ledcWrite(motor1A, 0);
+// Cada motor se controla con 2 pines (A y B)
+
+void motorLeftForward(int speed) {
+  ledcWrite(motor1A, speed);
+  ledcWrite(motor1B, 0);
+}
+
+void motorRightForward(int speed) {
   ledcWrite(motor2A, speed);
-  ledcWrite(motor1B, 0);
-  ledcWrite(motor2B, speed);
-}
-
-void turnLeft() {
-  ledcWrite(motor1A, 0);
-  ledcWrite(motor2A, 0);     
-  ledcWrite(motor1B, 0);
-  ledcWrite(motor2B, 255); 
-}
-
-void slightLeft() {
-  ledcWrite(motor1A, 0);
-  ledcWrite(motor2A, 200);  // mínimo
-  ledcWrite(motor1B, 0);
-  ledcWrite(motor2B, 255);  // más rápido
-}
-
-void turnRight() {
-  ledcWrite(motor1A, 0);
-  ledcWrite(motor2A, 255); 
-  ledcWrite(motor1B, 0);
   ledcWrite(motor2B, 0);
 }
 
-void slightRight() {
+void motorLeftStop() {
   ledcWrite(motor1A, 0);
-  ledcWrite(motor2A, 255);  // más rápido
   ledcWrite(motor1B, 0);
-  ledcWrite(motor2B, 200);  // mínimo
+}
+
+void motorRightStop() {
+  ledcWrite(motor2A, 0);
+  ledcWrite(motor2B, 0);
+}
+
+void forward(int speed) {
+  motorLeftForward(speed);
+  motorRightForward(speed);
+}
+
+void turnLeft() {
+  motorLeftStop();
+  motorRightForward(200);
+}
+
+void slightLeft() {
+  motorLeftForward(80);   // lento
+  motorRightForward(200); // rápido
+}
+
+void turnRight() {
+  motorLeftForward(200);
+  motorRightStop();
+}
+
+void slightRight() {
+  motorLeftForward(200); // rápido
+  motorRightForward(80); // lento
 }

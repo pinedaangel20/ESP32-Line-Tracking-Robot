@@ -1,0 +1,13 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "C/C++ Runner: Debug Session",
+      "type": "lldb",
+      "request": "launch",
+      "args": [],
+      "cwd": "/Users/angelpineda/Desktop/Projects/ESRoS/ESP32-Line-Tracking-Robot",
+      "program": "/Users/angelpineda/Desktop/Projects/ESRoS/ESP32-Line-Tracking-Robot/build/Debug/outDebug"
+    }
+  ]
+}
