@@ -5,6 +5,10 @@ The main challenge: designing and assembling the chassis using only reused or im
 
 This project is still under development. The robot can already move forward and detect lines with the IR sensors, but I am working on improving the logic for smoother turns.
 
+[!3/4](LTR_3/4.png)
+[!Front](LTR_front.png)
+[!Above](LTR_above.png)
+
 ---
 
 ## Components 
@@ -27,8 +31,6 @@ The robot follows a black line using its IR sensors. Depending on which sensor d
 
 A Finiste State Machine (FSM) defines the possible states (Forward, Left Turn, Right Turn, Search) and transitions based on sensor input. 
 
-
-
 #### States
 - Forward → when only the center sensor detects the line (010), the robot moves straight ahead.
 - Slight Left → when the left sensor is active (100) or both left and center are active (110).
@@ -44,7 +46,7 @@ A Finiste State Machine (FSM) defines the possible states (Forward, Left Turn, R
 
 # Wiring
 
-[Wiring Diagram](LTM_WD.png)
+[!Wiring Diagram](LTM_WD.png)
 
 ---
 
