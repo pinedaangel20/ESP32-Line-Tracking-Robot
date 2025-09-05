@@ -3,7 +3,7 @@
 My second robotics projects, where I built a Line Tracking Robot controlled by an ESP32. 
 The main challenge: designing and assembling the chassis using only reused or improvised materials, instead of relying on a 3D-printed model or a pre-designed kit.
 
-Demo comming soon...
+This project is still under development. The robot can already move forward and detect lines with the IR sensors, but I am working on improving the logic for smoother turns.
 
 ---
 
@@ -27,9 +27,26 @@ The robot follows a black line using its IR sensors. Depending on which sensor d
 
 A Finiste State Machine (FSM) defines the possible states (Forward, Left Turn, Right Turn, Search) and transitions based on sensor input. 
 
-FSM explanation + diagram comming soon...
 
-![Wiring Diagram](LTM_WD.png)
+
+#### States
+- Forward → when only the center sensor detects the line (010), the robot moves straight ahead.
+- Slight Left → when the left sensor is active (100) or both left and center are active (110).
+- Slight Right → when the right sensor is active (001) or both right and center are active (011).
+- Search (Lost Line) → when no sensor detects the line (000). The robot turns in the last known direction (lastTurn) until it finds the line again.
+
+#### Transitions
+- Input: binary combination of sensors (L, C, R).
+- Transition: FSM changes state according to the detected pattern.
+
+*This FSM design makes the robot responsive and robust, since it reacts directly to sensor input and can recover when it loses track of the line.*
+---
+
+# Wiring
+
+[Wiring Diagram](LTM_WD.png)
+
+---
 
 # Challenges and Learnings
 
@@ -58,5 +75,5 @@ It was very rewarding to see all the pieces come together after multiple iterati
 
 ---
 
-*I will soon add pictures of the different chassis prototypes and the final version of the robot*
+
 
