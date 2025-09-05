@@ -1,4 +1,4 @@
-# ESP32-Line-Tracking-Robot
+# ESP32-Line-Tracking-Robot (IN PROGRESS)
 
 My second robotics projects, where I built a Line Tracking Robot controlled by an ESP32. 
 The main challenge: designing and assembling the chassis using only reused or improvised materials, instead of relying on a 3D-printed model or a pre-designed kit.
