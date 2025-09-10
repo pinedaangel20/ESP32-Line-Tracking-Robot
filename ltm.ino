@@ -60,14 +60,14 @@ void loop() {
 
     case 0b100: // solo IZQUIERDA
     case 0b110: // centro+izq
-      slightLeft();
+      turnLeft();
       Serial.println("Slight Left");
       lastTurn = LEFT;
       break;
 
     case 0b001: // solo DERECHA
     case 0b011: // centro+der
-      slightRight();
+      turnRight();
       Serial.println("Slight Right");
       lastTurn = RIGHT;
       break;
